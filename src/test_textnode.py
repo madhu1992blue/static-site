@@ -127,8 +127,7 @@ class TestTextNode(unittest.TestCase):
                 TextNode(" and a ", TextType.TEXT),
                 TextNode("link", TextType.LINK, "https://boot.dev"),
             ]
-        print("Got: ", nodes)
-        print("Wanted: ", expected)
+
         for i in range(len(expected)):
             self.assertEqual(expected[i], nodes[i])
 if __name__ == "__main__":

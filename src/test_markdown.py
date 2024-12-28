@@ -1,5 +1,5 @@
 import unittest
-from markdown import extract_markdown_images, extract_markdown_links
+from markdown import extract_markdown_images, extract_markdown_links, markdown_to_blocks
 
 class TestMarkdownParsing(unittest.TestCase):
     def test_image_extraction(self):
@@ -14,3 +14,26 @@ class TestMarkdownParsing(unittest.TestCase):
         for i in range(len(expected)):
             self.assertEqual(expected[i], altTextImages[i])
 
+
+class TestMarkdownBlock(unittest.TestCase):
+    def test_markdown_blocks_create(self):
+        message = """
+# This is a heading
+
+This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+
+* This is the first list item in a list block
+* This is a list item
+* This is another list item
+"""
+        blocks = markdown_to_blocks(message)
+        expected = [
+            "# This is a heading",
+            "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
+            """* This is the first list item in a list block
+* This is a list item
+* This is another list item"""
+        ]
+        self.assertListEqual(blocks, expected)
+       
