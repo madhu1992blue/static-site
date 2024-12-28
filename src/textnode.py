@@ -2,7 +2,13 @@ from enum import Enum
 from typing import Optional
 
 from htmlnode import HTMLNode, LeafNode
-from markdown import extract_markdown_images, extract_markdown_links
+import re
+
+def extract_markdown_images(text):
+    return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)",text)
+
+def extract_markdown_links(text):
+    return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)",text)
 
 class TextType(Enum):
     TEXT = "text"

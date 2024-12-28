@@ -1,6 +1,7 @@
 import unittest
-from markdown import extract_markdown_images, extract_markdown_links, markdown_to_blocks, block_to_block_type, BlockType
+from markdown import markdown_to_blocks, block_to_block_type, BlockType, markdown_to_html_node
 
+from textnode import extract_markdown_images, extract_markdown_links
 class TestMarkdownParsing(unittest.TestCase):
     def test_image_extraction(self):
         altTextImages = extract_markdown_images("This contains image ![altText1](imageURL1) , ![altText2](imageURL2) here")
@@ -96,3 +97,33 @@ a
         self.assertEqual(block_to_block_type(malformed_ol), BlockType.Paragraph)
 
 
+    def test_markdown_to_html(self):
+        message = """
+# This is a heading
+
+## This is a second level heading
+
+This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+
+* This is the first list item in a list block
+* This is a list item
+* This is another list item
+
+1. This is the first list item in a ordered list block
+2. This is a list item
+3. This is another list item
+
+> This is some quote
+> actually a big one
+
+```bash
+echo $PATH
+```
+""".strip()
+        expected="""<div><h1>This is a heading</h1><h2>This is a second level heading</h2><p>This is a paragraph of text. It has some <b>bold</b> and <i>italic</i> words inside of it.</p><ul><li>This is the first list item in a list block</li><li>This is a list item</li><li>This is another list item</li></ul><ol><li> This is the first list item in a ordered list block</li><li> This is a list item</li><li> This is another list item</li></ol><blockquote> This is some quote
+ actually a big one</blockquote><pre><code>bash
+echo $PATH
+</code></pre></div>"""
+        print(markdown_to_html_node(message).to_html())
+        self.assertEqual(markdown_to_html_node(message).to_html(), expected)
