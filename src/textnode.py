@@ -90,11 +90,14 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter:str, text_type: T
     return nodes
 
 
-def split_nodes_image(old_nodes: list[TextNode]):
+def split_nodes_image(old_nodes: list[TextNode])->list[TextNode]:
     nodes = []
     for node in old_nodes:
         text = node.text
         altTextImages = extract_markdown_images(text)
+        if node.text_type != TextType.TEXT:
+            nodes.append(node)
+            continue
         for altText, imageUrl in altTextImages:
             imageInMD = f"![{altText}]({imageUrl})"
             text_parts = text.split(imageInMD,1)
@@ -104,13 +107,18 @@ def split_nodes_image(old_nodes: list[TextNode]):
             if imageInMD in text:
                 nodes.append(TextNode(altText, TextType.IMAGE,imageUrl))
             text = text_parts[1]
+        if text is not None:
+            nodes.append(TextNode(text, TextType.TEXT))
     return nodes
     
-def split_nodes_link(old_nodes: list[TextNode]):
+def split_nodes_link(old_nodes: list[TextNode])->list[TextNode]:
     nodes = []
     for node in old_nodes:
         text = node.text
         valUrls = extract_markdown_links(text)
+        if node.text_type != TextType.TEXT:
+            nodes.append(node)
+            continue
         for value, url in valUrls:
             urlInMD = f"[{value}]({url})"
             text_parts = text.split(urlInMD,1)
@@ -120,4 +128,17 @@ def split_nodes_link(old_nodes: list[TextNode]):
             if urlInMD in text:
                 nodes.append(TextNode(value, TextType.LINK, url))
             text = text_parts[1]
+        if text is not None:
+            nodes.append(TextNode(text, TextType.TEXT))
+    
+    return nodes
+
+def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.TEXT)]
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    
     return nodes

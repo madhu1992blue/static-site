@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter, split_nodes_link, split_nodes_image
+from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter, split_nodes_link, split_nodes_image, text_to_textnodes
 
 
 class TestTextNode(unittest.TestCase):
@@ -99,7 +99,6 @@ class TestTextNode(unittest.TestCase):
             TextType.TEXT,
         )
         new_nodes = split_nodes_image([node])
-        print(new_nodes)
         expected =  [
             TextNode("This is text with a image ", TextType.TEXT),
             TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
@@ -111,5 +110,26 @@ class TestTextNode(unittest.TestCase):
         for i in range(len(expected)):
             self.assertEqual(expected[i], new_nodes[i])
 
+    def test_text_to_textnodes(self):
+        nodes = text_to_textnodes(
+            "This is **text** with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)"
+        )
+        
+        expected = [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ]
+        print("Got: ", nodes)
+        print("Wanted: ", expected)
+        for i in range(len(expected)):
+            self.assertEqual(expected[i], nodes[i])
 if __name__ == "__main__":
     unittest.main()
