@@ -29,7 +29,7 @@ def block_to_block_type(block: str)->BlockType:
     if len(lines)==1 and block.startswith(("# ","## ","### ", "#### ", "##### ", "###### ")):
         return BlockType.Heading
     
-    if lines[0].startswith("```") and lines[-1].startswith("```"):
+    if len(lines) > 1 and lines[0].startswith("```") and lines[-1].startswith("```"):
         return BlockType.Code
     
     if lines[0].startswith(">"):

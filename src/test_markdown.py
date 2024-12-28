@@ -70,6 +70,18 @@ a
 """.strip()
         self.assertEqual(block_to_block_type(quote), BlockType.Quote)
 
+        code = """
+```
+> quote
+```
+""".strip()
+        self.assertEqual(block_to_block_type(code), BlockType.Code)
+
+        malformed_code = """
+```b
+""".strip()
+        self.assertEqual(block_to_block_type(malformed_code), BlockType.Paragraph)
+
 
         ol = """
 1. This is nice
