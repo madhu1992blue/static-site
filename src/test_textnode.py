@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, text_node_to_html_node
+from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter
 
 
 class TestTextNode(unittest.TestCase):
@@ -33,6 +33,49 @@ class TestTextNode(unittest.TestCase):
         ]
         for in_node, expected in in_expected:
             self.assertEqual(text_node_to_html_node(in_node).to_html(), expected)
+
+    def test_split_nodes(self):
+        node = TextNode("This is text with a `code block` word", TextType.TEXT)
+        actual = split_nodes_delimiter([node], "`", TextType.CODE)
+        expected = [
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" word", TextType.TEXT),
+        ]
+        for i in range(len(expected)):
+            self.assertEqual(actual[i], expected[i])
+
+
+        node = TextNode("This is text with a **bold phrase**", TextType.TEXT)
+        actual = split_nodes_delimiter([node], "**", TextType.BOLD)
+        expected = [
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode("bold phrase", TextType.BOLD),
+        ]
+        print(actual, expected)
+        self.assertEqual(len(actual), len(expected))
+        for i in range(len(expected)):
+            self.assertEqual(actual[i], expected[i])
+
+        node = TextNode("**bold phrase** started", TextType.TEXT)
+        actual = split_nodes_delimiter([node], "**", TextType.BOLD)
+        expected = [
+            TextNode("bold phrase", TextType.BOLD),
+            TextNode(" started", TextType.TEXT),
+        ]
+        print(actual, expected)
+        self.assertEqual(len(actual), len(expected))
+        for i in range(len(expected)):
+            self.assertEqual(actual[i], expected[i])
+
+        node = TextNode("****", TextType.TEXT)
+        actual = split_nodes_delimiter([node], "**", TextType.BOLD)
+        expected = []
+        self.assertEqual(len(actual), len(expected))
+
+        with self.assertRaises(Exception):
+            node = TextNode("**", TextType.TEXT)
+            actual = split_nodes_delimiter([node], "**", TextType.BOLD)
 
         
 

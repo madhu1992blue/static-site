@@ -51,3 +51,39 @@ def text_node_to_html_node(text_node: TextNode) -> HTMLNode:
             return LeafNode("img", "", props)
         case _:
             raise Exception("Unknown TextType")
+
+
+
+def split_text_delimiter(node: TextNode, delimiter: str, text_type: TextType):
+    nodes = []
+    segment_start = 0
+    segment_end = segment_start
+    had_delimited_node_started = False
+    while segment_end + len(delimiter) <= len(node.text):
+        if node.text[segment_end: segment_end + len(delimiter)] == delimiter:
+            if not had_delimited_node_started:
+                if segment_start != segment_end:
+                    nodes.append(TextNode(node.text[segment_start: segment_end], TextType.TEXT))
+                had_delimited_node_started = True
+            else:
+                if segment_start != segment_end:
+                    nodes.append(TextNode(node.text[segment_start: segment_end], text_type))
+                had_delimited_node_started = False
+            segment_start = segment_end + len(delimiter)
+            segment_end = segment_start
+        else:
+            segment_end += 1
+    if had_delimited_node_started:
+        raise Exception("Delimiter not ended")
+    if segment_start != segment_end:
+        nodes.append(TextNode(node.text[segment_start: ], TextType.TEXT))
+    return nodes
+
+def split_nodes_delimiter(old_nodes: list[TextNode], delimiter:str, text_type: TextType)->list[TextNode]:
+    nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            nodes.append(node)
+            continue
+        nodes.extend(split_text_delimiter(node, delimiter, text_type))
+    return nodes
