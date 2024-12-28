@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter
+from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter, split_nodes_link, split_nodes_image
 
 
 class TestTextNode(unittest.TestCase):
@@ -52,7 +52,6 @@ class TestTextNode(unittest.TestCase):
             TextNode("This is text with a ", TextType.TEXT),
             TextNode("bold phrase", TextType.BOLD),
         ]
-        print(actual, expected)
         self.assertEqual(len(actual), len(expected))
         for i in range(len(expected)):
             self.assertEqual(actual[i], expected[i])
@@ -63,7 +62,7 @@ class TestTextNode(unittest.TestCase):
             TextNode("bold phrase", TextType.BOLD),
             TextNode(" started", TextType.TEXT),
         ]
-        print(actual, expected)
+
         self.assertEqual(len(actual), len(expected))
         for i in range(len(expected)):
             self.assertEqual(actual[i], expected[i])
@@ -77,7 +76,40 @@ class TestTextNode(unittest.TestCase):
             node = TextNode("**", TextType.TEXT)
             actual = split_nodes_delimiter([node], "**", TextType.BOLD)
 
-        
+    def test_split_nodes_link(self):
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        expected =  [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode(
+                "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+        for i in range(len(expected)):
+            self.assertEqual(expected[i], new_nodes[i])
+    
+    def test_split_nodes_image(self):
+        node = TextNode(
+            "This is text with a image ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        print(new_nodes)
+        expected =  [
+            TextNode("This is text with a image ", TextType.TEXT),
+            TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode(
+                "to youtube", TextType.IMAGE, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+        for i in range(len(expected)):
+            self.assertEqual(expected[i], new_nodes[i])
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,7 +1,8 @@
 from enum import Enum
 from typing import Optional
 
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import HTMLNode, LeafNode
+from markdown import extract_markdown_images, extract_markdown_links
 
 class TextType(Enum):
     TEXT = "text"
@@ -86,4 +87,37 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter:str, text_type: T
             nodes.append(node)
             continue
         nodes.extend(split_text_delimiter(node, delimiter, text_type))
+    return nodes
+
+
+def split_nodes_image(old_nodes: list[TextNode]):
+    nodes = []
+    for node in old_nodes:
+        text = node.text
+        altTextImages = extract_markdown_images(text)
+        for altText, imageUrl in altTextImages:
+            imageInMD = f"![{altText}]({imageUrl})"
+            text_parts = text.split(imageInMD,1)
+            left = text_parts[0]
+            if left:
+                nodes.append(TextNode(left, TextType.TEXT))
+            if imageInMD in text:
+                nodes.append(TextNode(altText, TextType.IMAGE,imageUrl))
+            text = text_parts[1]
+    return nodes
+    
+def split_nodes_link(old_nodes: list[TextNode]):
+    nodes = []
+    for node in old_nodes:
+        text = node.text
+        valUrls = extract_markdown_links(text)
+        for value, url in valUrls:
+            urlInMD = f"[{value}]({url})"
+            text_parts = text.split(urlInMD,1)
+            left = text_parts[0]
+            if left:
+                nodes.append(TextNode(left, TextType.TEXT))
+            if urlInMD in text:
+                nodes.append(TextNode(value, TextType.LINK, url))
+            text = text_parts[1]
     return nodes
