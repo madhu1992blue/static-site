@@ -77,7 +77,7 @@ def get_heading_level(heading:str) -> int:
     return len(heading.split(" ",1)[0])
 
 def get_heading_val(heading:str) -> str:
-    return heading.split(" ",1)[1]
+    return heading.split(" ",1)[1].strip()
 
 def get_code_val(codeBlock:str) -> str:
     return codeBlock.strip("```")
@@ -86,7 +86,7 @@ def get_code_val(codeBlock:str) -> str:
 def get_quote_val(quoteBlock:str) -> str:
     res = []
     for line in quoteBlock.split("\n"):
-        res.append(line[1:])
+        res.append(line[1:].strip())
     return "\n".join(res)
 
 
@@ -94,7 +94,9 @@ def get_li_html_node(block:str)->list[HTMLNode]:
     lines = block.split("\n")
     nodes = []
     for line in lines:
-        nodes.append(LeafNode("li", line[2:]))
+        text_nodes = text_to_textnodes(line[2:].strip())
+        html_nodes= [text_node_to_html_node(tn) for tn in text_nodes]
+        nodes.append(ParentNode("li", html_nodes))
     return nodes
 
 
@@ -126,4 +128,8 @@ def markdown_to_html_node(markdown):
     block_htmls: list[HTMLNode] = [block_to_html_node(block) for block in blocks]
     return ParentNode("div", block_htmls)
 
-        
+def extract_title(markdown: str)->str:
+    for line in markdown.split("\n"):
+        if line.startswith("# "):
+            return line[2:].strip()
+    raise Exception("No heading found")

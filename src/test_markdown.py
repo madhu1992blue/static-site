@@ -1,5 +1,5 @@
 import unittest
-from markdown import markdown_to_blocks, block_to_block_type, BlockType, markdown_to_html_node
+from markdown import markdown_to_blocks, block_to_block_type, BlockType, markdown_to_html_node, extract_title
 
 from textnode import extract_markdown_images, extract_markdown_links
 class TestMarkdownParsing(unittest.TestCase):
@@ -96,7 +96,7 @@ a
 """.strip()
         self.assertEqual(block_to_block_type(malformed_ol), BlockType.Paragraph)
 
-
+    
     def test_markdown_to_html(self):
         message = """
 # This is a heading
@@ -127,3 +127,4 @@ echo $PATH
 </code></pre></div>"""
         print(markdown_to_html_node(message).to_html())
         self.assertEqual(markdown_to_html_node(message).to_html(), expected)
+        self.assertEqual(extract_title(message), "This is a heading")
