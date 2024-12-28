@@ -1,8 +1,11 @@
-from textnode import TextType, TextNode
-from htmlnode import HTMLNode
+
+import generator
+import os
 def main():
-    print(TextNode("This is a text node", TextType.BOLD, "https://www.boot.dev"))
-    print(HTMLNode("body",None, [HTMLNode("a", "Haha", None, {"href": "http://example.com"})]))
+    generator.removeRecurse("public")
+    os.mkdir("public")
+    generator.copy("static","public")
+
 
 if __name__ == "__main__":
     main()
